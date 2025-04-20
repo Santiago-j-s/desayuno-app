@@ -49,12 +49,12 @@ Collect the following credentials that you'll need for your `.env.local` file:
 ## Step 5: Configure Google Sheets Data Sources
 
 1. Set up two Google Sheets:
-   - One for players data
-   - One for locations data
+   - One for texts data
+   - One for images data
 2. Publish each sheet to the web:
    - File > Share > Publish to web
    - Choose "Tab-separated values (.tsv)" as the format
-   - Copy the published URLs for `PLAYERS_TSV` and `LOCATIONS_TSV`
+   - Copy the published URLs for `TEXTS_TSV` and `IMAGES_TSV`
 
 ## Step 6: Configure the Project
 
