@@ -49,3 +49,15 @@ export interface DiscordMessage {
   };
   timestamp: string;
 }
+
+export interface InteractionResponse {
+  type: number;
+  data?: {
+    content?: string;
+    embeds?: Array<{
+      image?: {
+        url: string;
+      };
+    }>;
+  };
+}
