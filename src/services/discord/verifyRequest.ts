@@ -1,4 +1,5 @@
 import nacl from "tweetnacl";
+import { DiscordInteraction } from "./types";
 
 export async function verifyRequest(request: Request) {
   const signature = request.headers.get("x-signature-ed25519");

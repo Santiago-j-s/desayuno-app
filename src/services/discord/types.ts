@@ -1,4 +1,4 @@
-type DiscordInteraction = {
+export interface DiscordInteraction {
   type: number; // 1 = PING, 2 = APPLICATION_COMMAND, etc.
   id: string; // ID de la interacción
   application_id: string; // ID de la aplicación (bot)
@@ -37,9 +37,9 @@ type DiscordInteraction = {
       value: string | number | boolean;
     }[];
   };
-};
+}
 
-type DiscordMessage = {
+export interface DiscordMessage {
   id: string;
   content: string;
   author: {
@@ -48,4 +48,4 @@ type DiscordMessage = {
     global_name: string;
   };
   timestamp: string;
-};
+}
