@@ -72,7 +72,10 @@ export async function POST(request: Request) {
         return NextResponse.json({
           type: 4,
           data: {
-            content: text,
+            content: text.replace(
+              "{user}",
+              body.member ? `<@${body.member.user.id}>` : ""
+            ),
             embeds: [
               {
                 image: {
