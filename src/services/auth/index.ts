@@ -26,6 +26,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
+          // google adheres to the openid connect spec so it always requires the openid scope
+          // https://developers.google.com/identity/protocols/oauth2/openid-connect#scope-param
+          scope:
+            "openid email profile https://www.googleapis.com/auth/spreadsheets",
         },
       },
     }),

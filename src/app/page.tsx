@@ -1,4 +1,5 @@
 import { auth } from "@/services/auth";
+import { getSheetData } from "@/services/sheets";
 import { Suspense } from "react";
 
 async function AuthenticatedSegment() {
@@ -8,7 +9,9 @@ async function AuthenticatedSegment() {
     return <div>Not authenticated</div>;
   }
 
-  return <pre>{JSON.stringify(session, null, 2)}</pre>;
+  const data = await getSheetData(session.access_token);
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
 }
 
 export default async function Home() {
