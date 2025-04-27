@@ -66,7 +66,11 @@ export function TextsForm({
   );
 }
 
-export function TextsClient({ texts }: { texts: string[] }) {
+export function TextsClient({
+  texts,
+}: {
+  texts: { key: string; text: string }[];
+}) {
   const [, action, isPending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
       const response = await addText(formData);
@@ -84,11 +88,11 @@ export function TextsClient({ texts }: { texts: string[] }) {
 
   return (
     <>
-      {texts.map((row, index) => {
+      {texts.map(({ key, text }) => {
         return (
-          <ViewTransition key={index} enter="fade-in">
+          <ViewTransition key={key} enter="fade-in">
             <TextLine status={"idle"}>
-              {splitWords(row).map((part, index) => (
+              {splitWords(text).map((part, index) => (
                 <Word key={index} word={part} />
               ))}
             </TextLine>

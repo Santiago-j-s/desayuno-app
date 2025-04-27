@@ -38,8 +38,9 @@ export async function addText(formData: FormData): Promise<Response> {
     }
 
     const texts = await getTextsFromSheet(session.access_token);
+    const newTexts = [...texts, { key: `${texts.length}-${text}`, text }];
 
-    await updateTextsInSheet(session.access_token, [...texts, text]);
+    await updateTextsInSheet(session.access_token, newTexts);
 
     return { status: "success", message: "Texto añadido" };
   } catch (error) {

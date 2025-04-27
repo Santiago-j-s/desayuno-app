@@ -72,10 +72,13 @@ async function updateSheetData(
 
 export async function getTextsFromSheet(
   accessToken: string,
-): Promise<string[]> {
+): Promise<{ key: string; text: string }[]> {
   const data = await getSheetData(accessToken, TEXTS.ID, TEXTS.RANGE);
 
-  return data.values.map((row) => row[0]);
+  return data.values.map((row, index) => ({
+    key: `${index}-${row[0]}`,
+    text: row[0],
+  }));
 }
 
 export async function getImagesFromSheet(
@@ -95,7 +98,12 @@ export async function updateImagesInSheet(
 
 export async function updateTextsInSheet(
   accessToken: string,
-  values: string[],
+  values: { key: string; text: string }[],
 ) {
-  return updateSheetData(accessToken, TEXTS.ID, TEXTS.RANGE, values);
+  return updateSheetData(
+    accessToken,
+    TEXTS.ID,
+    TEXTS.RANGE,
+    values.map(({ text }) => text),
+  );
 }
