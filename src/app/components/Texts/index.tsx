@@ -19,6 +19,7 @@ export async function Texts() {
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900 p-6 shadow-lg">
       <h2 className="text-xl font-semibold text-gray-100">Respuestas</h2>
+      {/* TODO: Improve fallback */}
       <Suspense fallback={<div>Loading...</div>}>
         {textsData
           .then((texts) => <TextsClient texts={texts} />)

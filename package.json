@@ -13,6 +13,7 @@
     "next-auth": "5.0.0-beta.27",
     "react": "0.0.0-experimental-197d6a04-20250424",
     "react-dom": "0.0.0-experimental-197d6a04-20250424",
+    "sonner": "^2.0.3",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {

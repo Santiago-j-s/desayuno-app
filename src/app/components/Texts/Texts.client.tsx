@@ -2,6 +2,7 @@
 
 import { useActionState, useOptimistic } from "react";
 import { addText, Response } from "./actions";
+import { toast } from "sonner";
 
 function splitWords(text: string) {
   return text.split(/(\s+|[.,!?])/);
@@ -45,11 +46,16 @@ export function TextsClient({ texts }: { texts: string[] }) {
     }),
   );
 
-  // TODO: Add a toast to the UI for errors
-  const [_state, action, isPending] = useActionState(
+  const [, action, isPending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
       addOptimisticText(formData.get("text") as string);
-      return await addText(formData);
+      const response = await addText(formData);
+
+      if (response.status === "error") {
+        toast.error(response.message);
+      }
+
+      return response;
     },
     {
       status: "idle",
