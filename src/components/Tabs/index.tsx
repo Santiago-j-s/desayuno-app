@@ -16,28 +16,28 @@ interface TabsProps {
 export function Tabs({ tabs, defaultTab }: TabsProps) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0].id);
 
+  const activeTabClass = "border-blue-500 text-blue-400";
+  const inactiveTabClass =
+    "border-transparent text-gray-400 hover:border-gray-600 hover:text-gray-200";
+
   return (
-    <div className="w-full">
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+    <div className="flex w-full flex-col gap-4">
+      <div className="border-b border-gray-700">
+        <nav className="flex" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "border-indigo-500 text-indigo-600"
-                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-              } `}
+              className={`border-b-2 px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                activeTab === tab.id ? activeTabClass : inactiveTabClass
+              }`}
             >
               {tab.label}
             </button>
           ))}
         </nav>
       </div>
-      <div className="mt-4">
-        {tabs.find((tab) => tab.id === activeTab)?.content}
-      </div>
+      <div>{tabs.find((tab) => tab.id === activeTab)?.content}</div>
     </div>
   );
 }
