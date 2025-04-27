@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     dynamicIO: true, // enables "use cache"
     clientSegmentCache: true,
+    viewTransition: true,
   },
 };
 
