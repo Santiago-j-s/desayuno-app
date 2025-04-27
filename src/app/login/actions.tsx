@@ -20,7 +20,7 @@ export async function signInWithGoogle(): Promise<SignInWithGoogleResult | void>
 
     if (error instanceof AuthError) {
       console.error(
-        `\x1b[31m[LOGIN] signInWithGoogle ${JSON.stringify(error)}\x1b[0m`
+        `\x1b[31m[LOGIN] signInWithGoogle ${JSON.stringify(error)}\x1b[0m`,
       );
 
       return { result: "error" };
@@ -28,7 +28,7 @@ export async function signInWithGoogle(): Promise<SignInWithGoogleResult | void>
 
     if (error instanceof Error) {
       console.error(
-        `\x1b[31m[LOGIN] signInWithGoogle ${JSON.stringify(error)}\x1b[0m`
+        `\x1b[31m[LOGIN] signInWithGoogle ${JSON.stringify(error)}\x1b[0m`,
       );
 
       return { result: "error" };

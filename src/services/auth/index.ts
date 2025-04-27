@@ -39,8 +39,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (process.env.DEBUG_AUTH === "true") {
         console.log(
           `\x1b[36m[AUTH] jwt ${JSON.stringify(token)} ${JSON.stringify(
-            account
-          )}\x1b[0m`
+            account,
+          )}\x1b[0m`,
         );
       }
 
@@ -118,10 +118,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (process.env.DEBUG_AUTH === "true") {
         console.log(
           `\x1b[36m[AUTH] signIn ${JSON.stringify(user)} ${JSON.stringify(
-            account
+            account,
           )} ${JSON.stringify(profile)} ${JSON.stringify(
-            email
-          )} ${JSON.stringify(credentials)}\x1b[0m`
+            email,
+          )} ${JSON.stringify(credentials)}\x1b[0m`,
         );
       }
 
@@ -131,8 +131,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (process.env.DEBUG_AUTH === "true") {
         console.log(
           `\x1b[36m[AUTH] redirect ${JSON.stringify(url)} ${JSON.stringify(
-            baseUrl
-          )}\x1b[0m`
+            baseUrl,
+          )}\x1b[0m`,
         );
       }
 
@@ -160,8 +160,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (process.env.DEBUG_AUTH === "true") {
         console.log(
           `\x1b[36m[AUTH] session ${JSON.stringify(session)} ${JSON.stringify(
-            token
-          )}\x1b[0m`
+            token,
+          )}\x1b[0m`,
         );
       }
       session.error = token.error;
