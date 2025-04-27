@@ -65,17 +65,19 @@ export function ImagesClient({ images }: { images: string[] }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {optimisticImages.images.map((imageUrl, index) => {
-        const isLoading =
-          index === optimisticImages.images.length - 1 &&
-          optimisticImages.status === "loading";
+      <div className="grid grid-cols-3 gap-3">
+        {optimisticImages.images.map((imageUrl, index) => {
+          const isLoading =
+            index === optimisticImages.images.length - 1 &&
+            optimisticImages.status === "loading";
 
-        return (
-          <ImageContainer key={index} status={isLoading ? "loading" : "idle"}>
-            <ImagePreview src={imageUrl} />
-          </ImageContainer>
-        );
-      })}
+          return (
+            <ImageContainer key={index} status={isLoading ? "loading" : "idle"}>
+              <ImagePreview src={imageUrl} />
+            </ImageContainer>
+          );
+        })}
+      </div>
       <form action={action} className="relative">
         <input
           disabled={isPending}
