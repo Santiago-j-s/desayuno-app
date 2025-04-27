@@ -3,6 +3,7 @@
 import { useActionState, useOptimistic } from "react";
 import { addText, Response } from "./actions";
 import { toast } from "sonner";
+import { unstable_ViewTransition as ViewTransition } from "react";
 
 function splitWords(text: string) {
   return text.split(/(\s+|[.,!?])/);
@@ -37,18 +38,37 @@ function TextLine({
   return <div className={className}>{children}</div>;
 }
 
-export function TextsClient({ texts }: { texts: string[] }) {
-  const [optimisticTexts, addOptimisticText] = useOptimistic(
-    { status: "idle" as "idle" | "loading", texts },
-    (state, newText: string) => ({
-      status: "loading" as const,
-      texts: [...state.texts, newText],
-    }),
+export function TextLineSkeleton() {
+  return (
+    <ViewTransition>
+      <div className="min-h-[50px] animate-pulse rounded-lg border border-gray-700 bg-gray-800 p-3 text-gray-200 transition-colors hover:bg-gray-700" />
+    </ViewTransition>
   );
+}
 
+export function TextsForm({
+  isPending,
+  action,
+}: {
+  isPending: boolean;
+  action: (formData: FormData) => void;
+}) {
+  return (
+    <form action={action} className="relative">
+      <input
+        disabled={isPending}
+        type="text"
+        name="text"
+        placeholder="Agregar nueva respuesta..."
+        className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-200 transition-colors placeholder:text-gray-500 hover:border-gray-600 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-900"
+      />
+    </form>
+  );
+}
+
+export function TextsClient({ texts }: { texts: string[] }) {
   const [, action, isPending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
-      addOptimisticText(formData.get("text") as string);
       const response = await addText(formData);
 
       if (response.status === "error") {
@@ -63,29 +83,19 @@ export function TextsClient({ texts }: { texts: string[] }) {
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      {optimisticTexts.texts.map((row, index) => {
-        const isLoading =
-          index === optimisticTexts.texts.length - 1 &&
-          optimisticTexts.status === "loading";
-
+    <>
+      {texts.map((row, index) => {
         return (
-          <TextLine key={index} status={isLoading ? "loading" : "idle"}>
-            {splitWords(row).map((part, index) => (
-              <Word key={index} word={part} />
-            ))}
-          </TextLine>
+          <ViewTransition key={index} enter="fade-in">
+            <TextLine status={"idle"}>
+              {splitWords(row).map((part, index) => (
+                <Word key={index} word={part} />
+              ))}
+            </TextLine>
+          </ViewTransition>
         );
       })}
-      <form action={action} className="relative">
-        <input
-          disabled={isPending}
-          type="text"
-          name="text"
-          placeholder="Agregar nueva respuesta..."
-          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-200 transition-colors placeholder:text-gray-500 hover:border-gray-600 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-900"
-        />
-      </form>
-    </div>
+      <TextsForm isPending={isPending} action={action} />
+    </>
   );
 }

@@ -49,3 +49,33 @@ body {
     transform: translateX(0);
   }
 }
+
+::view-transition-old(.fade-in) {
+  animation: fade-out 0.3s ease-in-out;
+}
+
+::view-transition-new(.fade-in) {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
