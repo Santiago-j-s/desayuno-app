@@ -1,32 +1,39 @@
-import { auth } from "@/services/auth";
-import { getSheetData } from "@/services/sheets";
 import { Suspense } from "react";
+import { Texts } from "./components/Texts";
+
+function Images({ images }: { images: string[] }) {
+  return (
+    <div>
+      {/* {images.map((row) => (
+        <img key={row} src={row} alt={row} />
+      ))} */}
+    </div>
+  );
+}
 
 async function AuthenticatedSegment() {
-  const session = await auth();
+  // const session = await auth();
 
-  if (!session) {
-    return <div>Not authenticated</div>;
-  }
+  // if (!session) {
+  //   return <div>Not authenticated</div>;
+  // }
 
-  const data = await getSheetData(session.access_token);
+  // const imagesData = await getImagesFromSheet(session.access_token);
 
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+  return (
+    <div>
+      <Texts />
+      {/* <Images images={imagesData} /> */}
+    </div>
+  );
 }
 
 export default async function Home() {
   return (
-    <main>
+    <main className="flex flex-col gap-4 p-4">
       <Suspense fallback={<div>Loading...</div>}>
         <AuthenticatedSegment />
       </Suspense>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-          </tr>
-        </thead>
-      </table>
     </main>
   );
 }
