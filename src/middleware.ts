@@ -11,7 +11,7 @@ export const publicRoutes = [
 export async function middleware(request: NextRequest) {
   const session = await auth();
 
-  if (process.env.DEBUG_AUTH) {
+  if (process.env.DEBUG_AUTH === "true") {
     console.log(`\x1b[32m[MIDDLEWARE] session\x1b[0m`, session);
     console.log(
       `\x1b[32m[MIDDLEWARE] request.nextUrl.pathname\x1b[0m`,

@@ -53,3 +53,43 @@ export async function addText(formData: FormData): Promise<Response> {
     return { status: "error", message: "Error al añadir respuesta" };
   }
 }
+
+export async function deleteText(formData: FormData): Promise<Response> {
+  const session = await auth();
+
+  const textIndex = formData.get("text-index");
+
+  if (!textIndex) {
+    return { status: "error", message: "Índice de texto requerido" };
+  }
+
+  if (typeof textIndex !== "string") {
+    return { status: "error", message: "Índice de texto debe ser un string" };
+  }
+
+  try {
+    if (!session) {
+      return { status: "error", message: "No session" };
+    }
+
+    const texts = await getTextsFromSheet(session.access_token);
+
+    const textIndexNumber = parseInt(textIndex);
+    const textToDelete = texts[textIndexNumber];
+
+    await updateTextsInSheet(
+      session.access_token,
+      texts.map(({ key, text }) => {
+        if (key === textToDelete.key) {
+          return { key: `${key}-${textToDelete.text}`, text: "" };
+        }
+
+        return { key, text };
+      }),
+    );
+
+    return { status: "success", message: "Texto eliminado" };
+  } catch (error) {
+    return { status: "error", message: "Error al eliminar respuesta" };
+  }
+}

@@ -48,7 +48,7 @@ export function Tabs({ tabs, defaultTab }: TabsProps) {
               {tab.label}
               {activeTab === tab.id && (
                 <ViewTransition
-                  default={
+                  enter={
                     isOldTabToTheLeft
                       ? "tab-transition-right"
                       : "tab-transition-left"

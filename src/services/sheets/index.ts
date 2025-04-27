@@ -77,7 +77,7 @@ export async function getTextsFromSheet(
 
   return data.values.map((row, index) => ({
     key: `${index}-${row[0]}`,
-    text: row[0],
+    text: row[0] || "",
   }));
 }
 
