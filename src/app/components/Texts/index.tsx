@@ -1,8 +1,7 @@
 import { getTextsFromSheet } from "@/services/sheets";
-import { TextLineSkeleton, TextsClient } from "./Texts.client";
+import { TextsClient } from "./Texts.client";
 import { auth } from "@/services/auth";
 import { Suspense } from "react";
-import { unstable_ViewTransition as ViewTransition } from "react";
 
 async function TextsData() {
   const session = await auth();

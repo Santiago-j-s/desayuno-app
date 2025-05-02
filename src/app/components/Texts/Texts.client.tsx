@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useOptimistic } from "react";
+import { useActionState } from "react";
 import { addText, deleteText, Response } from "./actions";
 import { toast } from "sonner";
 import { unstable_ViewTransition as ViewTransition } from "react";

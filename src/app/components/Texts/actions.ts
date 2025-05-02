@@ -90,6 +90,12 @@ export async function deleteText(formData: FormData): Promise<Response> {
 
     return { status: "success", message: "Texto eliminado" };
   } catch (error) {
+    if (error instanceof Error) {
+      return { status: "error", message: error.message };
+    }
+
+    console.error(error);
+
     return { status: "error", message: "Error al eliminar respuesta" };
   }
 }
