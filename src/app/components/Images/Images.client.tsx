@@ -7,7 +7,10 @@ import { toast } from "sonner";
 function ImagePreview({ src }: { src: string }) {
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-      <img src={src} alt="Preview" className="h-full w-full object-cover" />
+      <picture>
+        <source srcSet={src} type="image/webp" />
+        <img src={src} alt="Preview" className="h-full w-full object-cover" />
+      </picture>
     </div>
   );
 }

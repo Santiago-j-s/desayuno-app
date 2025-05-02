@@ -18,6 +18,9 @@ declare module "next-auth/jwt" {
   }
 }
 
+/**
+ * @public TODO: remove when signOut is implemented somewhere
+ */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({

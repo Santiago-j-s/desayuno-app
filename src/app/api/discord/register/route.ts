@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
           options: [],
         },
       ]),
-    }
+    },
   ).then((res) => res.json());
 
   return NextResponse.json(data);

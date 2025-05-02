@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "knip": "knip",
+    "prepare": "husky"
   },
   "dependencies": {
     "next": "15.4.0-canary.11",
@@ -22,8 +24,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "19.1.0-rc.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "knip": "^5.50.5",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4",

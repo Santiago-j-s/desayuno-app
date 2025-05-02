@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/app/**/*.{ts,tsx}",
+    "src/pages/**/*.{ts,tsx}",
+    "src/components/**/*.{ts,tsx}"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": ["**/*.d.ts"],
+  "ignoreDependencies": [
+    "eslint",
+    "eslint-config-next",
+    "tailwindcss",
+    "eslint-plugin-react-hooks"
+  ]
+}

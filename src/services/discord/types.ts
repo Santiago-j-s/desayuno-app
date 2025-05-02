@@ -39,6 +39,9 @@ export interface DiscordInteraction {
   };
 }
 
+/**
+ * @public
+ */
 export interface DiscordMessage {
   id: string;
   content: string;
