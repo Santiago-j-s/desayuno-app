@@ -2,11 +2,13 @@ import { auth } from "@/services/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export const publicRoutes = [
+export const publicRoutes = new Set([
   "/login",
   "/api/auth/callback/google",
-  "api/auth/error",
-];
+  "/api/auth/error",
+  "/api/discord/register",
+  "/api/discord",
+]);
 
 export async function middleware(request: NextRequest) {
   const session = await auth();
@@ -19,7 +21,7 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  if (!session && !publicRoutes.includes(request.nextUrl.pathname)) {
+  if (!session && !publicRoutes.has(request.nextUrl.pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
