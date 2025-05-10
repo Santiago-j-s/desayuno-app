@@ -144,14 +144,18 @@ export async function updateTextsInSheet(
 
 export async function getDesayunosFromSheet(
   accessToken: string,
-): Promise<string[][]> {
+): Promise<{ id: string; text: string; image: string }[]> {
   const data = await getSheetData(accessToken, DESAYUNO.ID, DESAYUNO.RANGE);
 
   if ("error" in data) {
     throw new Error(data.error.message);
   }
 
-  return data.values;
+  return data.values.map((row) => ({
+    id: `${row[0]}-${row[1]}`,
+    text: row[0],
+    image: row[1],
+  }));
 }
 
 export async function updateDesayunosInSheet(

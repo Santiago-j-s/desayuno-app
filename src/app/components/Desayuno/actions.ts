@@ -58,7 +58,7 @@ export async function addDesayuno(formData: FormData): Promise<Response> {
     const desayunos = await getDesayunosFromSheet(session.access_token);
 
     await updateDesayunosInSheet(session.access_token, [
-      ...desayunos,
+      ...desayunos.map(({ text, image }) => [text, image]),
       [text, uploadResponse.data.link],
     ]);
 
@@ -79,7 +79,7 @@ export async function updateDesayunoText(
 ): Promise<Response> {
   const session = await auth();
   const newText = formData.get("newText");
-  const index = formData.get("index");
+  const editingId = formData.get("id");
 
   if (!newText) {
     return { status: "error", message: "Texto requerido" };
@@ -89,8 +89,8 @@ export async function updateDesayunoText(
     return { status: "error", message: "Texto debe ser un string" };
   }
 
-  if (typeof index !== "string") {
-    return { status: "error", message: "Índice inválido" };
+  if (typeof editingId !== "string") {
+    return { status: "error", message: "Id inválido" };
   }
 
   try {
@@ -99,15 +99,23 @@ export async function updateDesayunoText(
     }
 
     const desayunos = await getDesayunosFromSheet(session.access_token);
-    const indexNum = parseInt(index, 10);
 
-    if (isNaN(indexNum) || indexNum < 0 || indexNum >= desayunos.length) {
-      return { status: "error", message: "Índice inválido" };
+    const desayuno = desayunos.find(({ id }) => id === editingId);
+
+    if (!desayuno) {
+      return { status: "error", message: "Desayuno no encontrado" };
     }
 
-    desayunos[indexNum][0] = newText;
+    await updateDesayunosInSheet(
+      session.access_token,
+      desayunos.map(({ id, text, image }) => {
+        if (id === editingId) {
+          return [newText, image];
+        }
 
-    await updateDesayunosInSheet(session.access_token, desayunos);
+        return [text, image];
+      }),
+    );
 
     return { status: "success", message: "Desayuno actualizado" };
   } catch (error) {

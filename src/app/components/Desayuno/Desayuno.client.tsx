@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState, useOptimistic, useState } from "react";
+import { Fragment, useActionState, useOptimistic, useState } from "react";
 import { toast } from "sonner";
 import { addDesayuno, updateDesayunoText, Response } from "./actions";
+import { unstable_ViewTransition as ViewTransition } from "react";
+import { unstable_Activity as Activity } from "react";
 
 function DesayunoPreview({ src }: { src: string }) {
   return (
@@ -30,28 +32,28 @@ function Word({ word }: { word: string }) {
 function EditDesayunoForm({
   isPending,
   action,
-  initialText,
   onCancel,
-  image,
-  index,
+  desayuno,
 }: {
   isPending: boolean;
   action: (formData: FormData) => void;
-  initialText: string;
   onCancel: () => void;
-  image: string;
-  index: number;
+  desayuno: { text: string; image: string; id: string | null };
 }) {
+  if (desayuno.id === null) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <form action={action} className="flex flex-col gap-2">
-        <input type="hidden" name="text" value={initialText} />
-        <input type="hidden" name="index" value={index} />
+        <input type="hidden" name="text" value={desayuno.text} />
+        <input type="hidden" name="id" value={desayuno.id} />
         <input
           disabled={isPending}
           type="text"
           name="newText"
-          defaultValue={initialText}
+          defaultValue={desayuno.text}
           placeholder="Editar texto..."
           className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-200 transition-colors placeholder:text-gray-500 hover:border-gray-600 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-900"
         />
@@ -77,24 +79,22 @@ function EditDesayunoForm({
           </button>
         </div>
       </form>
-      <DesayunoPreview src={image} />
+      <DesayunoPreview src={desayuno.image} />
     </div>
   );
 }
 
 function DesayunoItem({
-  text,
-  image,
+  desayuno,
   status = "idle",
-  index,
   onEdit,
 }: {
-  text: string;
-  image: string;
+  desayuno: { text: string; image: string; id: string | null };
   status?: "loading" | "idle";
-  index: number;
-  onEdit: (index: number) => void;
+  onEdit: (id: string) => void;
 }) {
+  const id = desayuno.id;
+
   return (
     <div
       className={[
@@ -105,32 +105,34 @@ function DesayunoItem({
       <div className="mb-2 min-h-[60px]">
         <div className="flex items-start justify-between gap-2">
           <p className="line-clamp-3 flex-1 text-gray-200">
-            {splitWords(text).map((part, index) => (
+            {splitWords(desayuno.text).map((part, index) => (
               <Word key={index} word={part} />
             ))}
           </p>
-          <button
-            onClick={() => onEdit(index)}
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {id !== null && (
+            <button
+              onClick={() => onEdit(id)}
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
             >
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-              <path d="m15 5 4 4" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                <path d="m15 5 4 4" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
-      <DesayunoPreview src={image} />
+      <DesayunoPreview src={desayuno.image} />
     </div>
   );
 }
@@ -173,16 +175,73 @@ function DesayunoForm({
   );
 }
 
-export function DesayunoClient({ desayunos }: { desayunos: string[][] }) {
-  const [optimisticDesayunos, addOptimisticDesayuno] = useOptimistic(
-    { status: "idle" as "idle" | "loading", desayunos },
-    (state, newDesayuno: string[]) => ({
-      status: "loading" as const,
-      desayunos: [...state.desayunos, newDesayuno],
-    }),
-  );
+type DesayunoOptimisticState = {
+  desayunos: {
+    status: "idle" | "loading";
+    id: string | null;
+    text: string;
+    image: string;
+  }[];
+};
 
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+type DesayunoOptimisticAction =
+  | {
+      type: "add";
+      payload: {
+        id: string | null;
+        text: string;
+        image: string;
+      };
+    }
+  | {
+      type: "update";
+      payload: {
+        id: string;
+        text: string;
+      };
+    };
+
+function useOptimisticDesayunoReducer(
+  desayunos: { id: string; text: string; image: string }[],
+) {
+  return useOptimistic<DesayunoOptimisticState, DesayunoOptimisticAction>(
+    {
+      desayunos: desayunos.map((desayuno) => ({
+        ...desayuno,
+        status: "idle",
+      })),
+    },
+    (state, action) => {
+      switch (action.type) {
+        case "add":
+          return {
+            desayunos: [
+              ...state.desayunos,
+              { ...action.payload, status: "loading" },
+            ],
+          };
+        case "update":
+          return {
+            desayunos: state.desayunos.map((desayuno) =>
+              desayuno.id === action.payload.id
+                ? { ...desayuno, text: action.payload.text, status: "loading" }
+                : desayuno,
+            ),
+          };
+      }
+    },
+  );
+}
+
+export function DesayunoClient({
+  desayunos,
+}: {
+  desayunos: { id: string; text: string; image: string }[];
+}) {
+  const [optimisticDesayunos, dispatchOptimisticDesayuno] =
+    useOptimisticDesayunoReducer(desayunos);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [, addAction, isAddPending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
@@ -191,7 +250,10 @@ export function DesayunoClient({ desayunos }: { desayunos: string[][] }) {
 
       if (file) {
         const imageUrl = URL.createObjectURL(file);
-        addOptimisticDesayuno([text, imageUrl]);
+        dispatchOptimisticDesayuno({
+          type: "add",
+          payload: { id: null, text, image: imageUrl },
+        });
       }
 
       const response = await addDesayuno(formData);
@@ -210,13 +272,21 @@ export function DesayunoClient({ desayunos }: { desayunos: string[][] }) {
 
   const [, updateAction, isUpdatePending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
+      const id = formData.get("id") as string;
+      const text = formData.get("text") as string;
+
+      dispatchOptimisticDesayuno({
+        type: "update",
+        payload: { id, text },
+      });
+
       const response = await updateDesayunoText(formData);
 
       if (response.status === "error") {
         console.error(response.message);
         toast.error(response.message);
       } else {
-        setEditingIndex(null);
+        setEditingId(null);
       }
 
       return response;
@@ -229,38 +299,35 @@ export function DesayunoClient({ desayunos }: { desayunos: string[][] }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {optimisticDesayunos.desayunos.map(([text, image], index) => {
-          const isLoading =
-            index === optimisticDesayunos.desayunos.length - 1 &&
-            optimisticDesayunos.status === "loading";
-
-          if (editingIndex === index) {
-            return (
-              <div
-                key={index}
-                className="rounded-lg border border-gray-700 bg-gray-800 p-3"
-              >
-                <EditDesayunoForm
-                  isPending={isUpdatePending}
-                  action={updateAction}
-                  initialText={text}
-                  onCancel={() => setEditingIndex(null)}
-                  image={image}
-                  index={index}
-                />
-              </div>
-            );
-          }
+        {optimisticDesayunos.desayunos.map((desayuno) => {
+          const isLoading = desayuno.status === "loading";
 
           return (
-            <DesayunoItem
-              key={index}
-              text={text}
-              image={image}
-              status={isLoading ? "loading" : "idle"}
-              index={index}
-              onEdit={setEditingIndex}
-            />
+            <Fragment key={desayuno.id}>
+              <Activity
+                mode={
+                  desayuno.id !== null && desayuno.id === editingId
+                    ? "visible"
+                    : "hidden"
+                }
+              >
+                <div className="rounded-lg border border-gray-700 bg-gray-800 p-3">
+                  <EditDesayunoForm
+                    isPending={isUpdatePending}
+                    action={updateAction}
+                    desayuno={desayuno}
+                    onCancel={() => setEditingId(null)}
+                  />
+                </div>
+              </Activity>
+              <Activity mode={desayuno.id !== editingId ? "visible" : "hidden"}>
+                <DesayunoItem
+                  desayuno={desayuno}
+                  status={isLoading ? "loading" : "idle"}
+                  onEdit={setEditingId}
+                />
+              </Activity>
+            </Fragment>
           );
         })}
       </div>
