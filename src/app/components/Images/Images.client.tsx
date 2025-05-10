@@ -22,19 +22,16 @@ function ImageContainer({
   status?: "loading" | "idle";
   children: React.ReactNode;
 }) {
-  const classes = [
-    "rounded-lg",
-    "border",
-    "border-gray-700",
-    "bg-gray-800",
-    "p-3",
-    "transition-colors",
-    "hover:bg-gray-700",
-  ];
-  const statusClasses = status === "loading" ? ["animate-pulse"] : [];
-  const className = [...classes, ...statusClasses].join(" ");
-
-  return <div className={className}>{children}</div>;
+  return (
+    <div
+      className={[
+        "rounded-lg border border-gray-700 bg-gray-800 p-3",
+        status === "loading" ? "animate-pulse" : "",
+      ].join(" ")}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function ImagesClient({ images }: { images: string[] }) {
@@ -49,13 +46,16 @@ export function ImagesClient({ images }: { images: string[] }) {
   const [, action, isPending] = useActionState(
     async (_prevState: Response, formData: FormData) => {
       const file = formData.get("image") as File;
+
       if (file) {
         const imageUrl = URL.createObjectURL(file);
         addOptimisticImage(imageUrl);
       }
+
       const response = await addImage(formData);
 
       if (response.status === "error") {
+        console.error(response.message);
         toast.error(response.message);
       }
 
@@ -92,9 +92,13 @@ export function ImagesClient({ images }: { images: string[] }) {
         <button
           type="submit"
           disabled={isPending}
-          className={`absolute top-1/2 right-2 -translate-y-1/2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold shadow transition duration-150 ease-in-out hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-300`}
+          className={`absolute top-1/2 right-2 inline-flex h-8 -translate-y-1/2 items-center justify-center rounded-md bg-gray-700 px-4 text-sm font-medium text-gray-200 transition-colors duration-150 hover:bg-gray-600 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 disabled:cursor-not-allowed disabled:bg-gray-800 disabled:text-gray-500`}
         >
-          Añadir
+          {isPending ? (
+            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-500 border-t-gray-200" />
+          ) : (
+            "Añadir"
+          )}
         </button>
       </form>
     </div>

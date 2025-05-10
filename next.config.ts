@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     dynamicIO: true, // enables "use cache"
     viewTransition: true,
     reactCompiler: true,
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
   },
 };
 

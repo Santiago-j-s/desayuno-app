@@ -2,6 +2,7 @@
 
 import { auth } from "@/services/auth";
 import { getImagesFromSheet, updateImagesInSheet } from "@/services/sheets";
+import { uploadImage } from "@/services/imgur";
 
 interface SuccessResponse {
   status: "success";
@@ -37,12 +38,16 @@ export async function addImage(formData: FormData): Promise<Response> {
       return { status: "error", message: "No session" };
     }
 
-    // TODO: Upload image to imgur
-    // For now, we'll just store a placeholder URL
-    const imageUrl = "https://placeholder.com/image.jpg";
+    const uploadResponse = await uploadImage(image, {
+      title: "Simple upload",
+      description: "This is a simple image upload in Imgur",
+    });
 
     const images = await getImagesFromSheet(session.access_token);
-    await updateImagesInSheet(session.access_token, [...images, imageUrl]);
+    await updateImagesInSheet(session.access_token, [
+      ...images,
+      uploadResponse.data.link,
+    ]);
 
     return { status: "success", message: "Imagen añadida" };
   } catch (error) {
