@@ -62,11 +62,13 @@ async function updateSheetData(
   accessToken: string,
   sheetId: string,
   range: SheetRange,
-  values: string[],
+  values: string[] | string[][],
 ) {
   const params = new URLSearchParams();
 
   params.set("valueInputOption", "RAW");
+
+  const isTwoDimensional = Array.isArray(values[0]);
 
   const response = await fetch(
     `${SHEETS_API_URL}/v4/spreadsheets/${sheetId}/values/${range}?${params}`,
@@ -77,8 +79,8 @@ async function updateSheetData(
       },
       body: JSON.stringify({
         range,
-        majorDimension: "COLUMNS",
-        values: [values],
+        majorDimension: isTwoDimensional ? "ROWS" : "COLUMNS",
+        values: isTwoDimensional ? values : [values],
       }),
     },
   );
@@ -140,7 +142,7 @@ export async function updateTextsInSheet(
   );
 }
 
-export async function getDesayunoFromSheet(
+export async function getDesayunosFromSheet(
   accessToken: string,
 ): Promise<string[][]> {
   const data = await getSheetData(accessToken, DESAYUNO.ID, DESAYUNO.RANGE);
@@ -152,9 +154,9 @@ export async function getDesayunoFromSheet(
   return data.values;
 }
 
-export async function updateDesayunoInSheet(
+export async function updateDesayunosInSheet(
   accessToken: string,
-  values: string[],
+  values: string[][],
 ) {
   return updateSheetData(accessToken, DESAYUNO.ID, DESAYUNO.RANGE, values);
 }

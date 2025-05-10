@@ -1,4 +1,4 @@
-import { getDesayunoFromSheet } from "@/services/sheets";
+import { getDesayunosFromSheet } from "@/services/sheets";
 import { auth } from "@/services/auth";
 import { Suspense } from "react";
 import { DesayunoClient } from "./Desayuno.client";
@@ -12,7 +12,7 @@ async function getDesayuno() {
 
   console.log(session.access_token);
 
-  return getDesayunoFromSheet(session.access_token);
+  return getDesayunosFromSheet(session.access_token);
 }
 
 export async function Desayuno() {
