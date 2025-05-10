@@ -46,38 +46,66 @@ function EditDesayunoForm({
 
   return (
     <div className="flex flex-col gap-3">
-      <form action={action} className="flex flex-col gap-2">
+      <form action={action} className="relative flex w-full items-start gap-2">
         <input type="hidden" name="text" value={desayuno.text} />
         <input type="hidden" name="id" value={desayuno.id} />
-        <input
+        <textarea
           disabled={isPending}
-          type="text"
           name="newText"
           defaultValue={desayuno.text}
           placeholder="Editar texto..."
-          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-200 transition-colors placeholder:text-gray-500 hover:border-gray-600 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-900"
+          rows={2}
+          className="flex-1 resize-none rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-200 transition-colors placeholder:text-gray-500 hover:border-gray-600 focus:border-transparent focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-900"
         />
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={isPending}
-            className={`inline-flex h-8 items-center justify-center rounded-md bg-gray-700 px-4 text-sm font-medium text-gray-200 transition-colors duration-150 hover:bg-gray-600 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 disabled:cursor-not-allowed disabled:bg-gray-800 disabled:text-gray-500`}
+        <button
+          type="submit"
+          disabled={isPending}
+          title="Guardar"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gray-800 text-gray-200 transition-colors duration-150 hover:bg-gray-700 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 disabled:cursor-not-allowed disabled:bg-gray-900 disabled:text-gray-400"
+        >
+          {isPending ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-white" />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isPending}
+          title="Cancelar"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gray-800 text-gray-200 transition-colors duration-150 hover:bg-gray-700 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 disabled:cursor-not-allowed disabled:bg-gray-900 disabled:text-gray-400"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
           >
-            {isPending ? (
-              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-500 border-t-gray-200" />
-            ) : (
-              "Guardar"
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isPending}
-            className={`inline-flex h-8 items-center justify-center rounded-md bg-gray-700 px-4 text-sm font-medium text-gray-200 transition-colors duration-150 hover:bg-gray-600 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1 focus:ring-offset-gray-900 disabled:cursor-not-allowed disabled:bg-gray-800 disabled:text-gray-500`}
-          >
-            Cancelar
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </form>
       <DesayunoPreview src={desayuno.image} />
     </div>
@@ -112,7 +140,7 @@ function DesayunoItem({
           {id !== null && (
             <button
               onClick={() => onEdit(id)}
-              className="rounded-md p-1 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -250,6 +278,7 @@ export function DesayunoClient({
 
       if (file) {
         const imageUrl = URL.createObjectURL(file);
+
         dispatchOptimisticDesayuno({
           type: "add",
           payload: { id: null, text, image: imageUrl },
@@ -301,33 +330,31 @@ export function DesayunoClient({
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {optimisticDesayunos.desayunos.map((desayuno) => {
           const isLoading = desayuno.status === "loading";
+          const isEditingThisElement =
+            editingId !== null && desayuno.id === editingId;
 
           return (
-            <Fragment key={desayuno.id}>
-              <Activity
-                mode={
-                  desayuno.id !== null && desayuno.id === editingId
-                    ? "visible"
-                    : "hidden"
-                }
-              >
+            <article key={desayuno.id}>
+              <Activity mode={isEditingThisElement ? "visible" : "hidden"}>
                 <div className="rounded-lg border border-gray-700 bg-gray-800 p-3">
-                  <EditDesayunoForm
-                    isPending={isUpdatePending}
-                    action={updateAction}
-                    desayuno={desayuno}
-                    onCancel={() => setEditingId(null)}
-                  />
+                  <ViewTransition>
+                    <EditDesayunoForm
+                      isPending={isUpdatePending}
+                      action={updateAction}
+                      desayuno={desayuno}
+                      onCancel={() => setEditingId(null)}
+                    />
+                  </ViewTransition>
                 </div>
               </Activity>
-              <Activity mode={desayuno.id !== editingId ? "visible" : "hidden"}>
+              <Activity mode={isEditingThisElement ? "hidden" : "visible"}>
                 <DesayunoItem
                   desayuno={desayuno}
                   status={isLoading ? "loading" : "idle"}
                   onEdit={setEditingId}
                 />
               </Activity>
-            </Fragment>
+            </article>
           );
         })}
       </div>
