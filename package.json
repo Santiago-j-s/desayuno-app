@@ -11,10 +11,10 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "next": "15.4.0-canary.11",
+    "next": "15.4.0-canary.29",
     "next-auth": "5.0.0-beta.27",
-    "react": "0.0.0-experimental-143d3e1b-20250425",
-    "react-dom": "0.0.0-experimental-143d3e1b-20250425",
+    "react": "0.0.0-experimental-21fdf308-20250508",
+    "react-dom": "0.0.0-experimental-21fdf308-20250508",
     "sonner": "^2.0.3",
     "tweetnacl": "^1.0.3"
   },
