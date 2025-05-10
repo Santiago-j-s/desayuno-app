@@ -1,6 +1,7 @@
 import { Tabs } from "@/components/Tabs";
 import { Images } from "./components/Images";
 import { Texts } from "./components/Texts";
+import { Desayuno } from "./components/Desayuno";
 
 export default async function Home() {
   const tabs = [
@@ -13,6 +14,11 @@ export default async function Home() {
       id: "images",
       label: "Imágenes",
       content: <Images />,
+    },
+    {
+      id: "desayuno",
+      label: "Desayuno",
+      content: <Desayuno />,
     },
   ];
 
