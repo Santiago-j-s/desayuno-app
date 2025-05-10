@@ -73,3 +73,50 @@ export async function addDesayuno(formData: FormData): Promise<Response> {
     return { status: "error", message: "Error al añadir desayuno" };
   }
 }
+
+export async function updateDesayunoText(
+  formData: FormData,
+): Promise<Response> {
+  const session = await auth();
+  const newText = formData.get("newText");
+  const index = formData.get("index");
+
+  if (!newText) {
+    return { status: "error", message: "Texto requerido" };
+  }
+
+  if (typeof newText !== "string") {
+    return { status: "error", message: "Texto debe ser un string" };
+  }
+
+  if (typeof index !== "string") {
+    return { status: "error", message: "Índice inválido" };
+  }
+
+  try {
+    if (!session) {
+      return { status: "error", message: "No session" };
+    }
+
+    const desayunos = await getDesayunosFromSheet(session.access_token);
+    const indexNum = parseInt(index, 10);
+
+    if (isNaN(indexNum) || indexNum < 0 || indexNum >= desayunos.length) {
+      return { status: "error", message: "Índice inválido" };
+    }
+
+    desayunos[indexNum][0] = newText;
+
+    await updateDesayunosInSheet(session.access_token, desayunos);
+
+    return { status: "success", message: "Desayuno actualizado" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { status: "error", message: error.message };
+    }
+
+    console.error(error);
+
+    return { status: "error", message: "Error al actualizar desayuno" };
+  }
+}
