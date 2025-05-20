@@ -1,6 +1,8 @@
 import { unstable_cacheTag as cacheTag, revalidateTag } from "next/cache";
 import { DESAYUNO, IMAGES, SHEETS_API_URL, TEXTS } from "./constants";
 
+const DEBUG_REQUESTS = process.env.DEBUG_REQUESTS === "true";
+
 // SheetName!InitialCell:FinalCell -> Texts!A1:A100
 type SheetRange = `${string}!${string}:${string}`;
 
@@ -30,14 +32,17 @@ async function getSheetData(
 
   cacheTag(`sheets-${sheetId}`);
 
-  const response = await fetch(
-    `${SHEETS_API_URL}/v4/spreadsheets/${sheetId}/values/${range}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  const url = `${SHEETS_API_URL}/v4/spreadsheets/${sheetId}/values/${range}`;
+
+  if (DEBUG_REQUESTS) {
+    console.log(`\x1b[32m[SHEETS] ${url}\x1b[0m`);
+  }
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
     },
-  );
+  });
 
   if (!response.ok) {
     try {
@@ -68,22 +73,25 @@ async function updateSheetData(
 
   params.set("valueInputOption", "RAW");
 
+  const url = `${SHEETS_API_URL}/v4/spreadsheets/${sheetId}/values/${range}?${params}`;
+
   const isTwoDimensional = Array.isArray(values[0]);
 
-  const response = await fetch(
-    `${SHEETS_API_URL}/v4/spreadsheets/${sheetId}/values/${range}?${params}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        range,
-        majorDimension: isTwoDimensional ? "ROWS" : "COLUMNS",
-        values: isTwoDimensional ? values : [values],
-      }),
-    },
-  );
+  const body = {
+    range,
+    majorDimension: isTwoDimensional ? "ROWS" : "COLUMNS",
+    values: isTwoDimensional ? values : [values],
+  };
+
+  if (DEBUG_REQUESTS) {
+    console.log(`\x1b[32m[SHEETS] ${url} ${JSON.stringify(body)}\x1b[0m`);
+  }
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(body),
+  });
 
   if (!response.ok) {
     const error = await response.json();
