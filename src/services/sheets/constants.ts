@@ -24,15 +24,16 @@ function extractSheetId(url: string) {
 
 export const TEXTS = {
   ID: extractSheetId(TEXTS_TSV),
-  RANGE: "Texts!A1:A100" as const,
+  RANGE: "Texts!A1:B100" as const,
 };
 
 export const IMAGES = {
   ID: extractSheetId(IMAGES_TSV),
-  RANGE: "Images!A1:A100" as const,
+  RANGE: "Images!A1:B100" as const,
 };
 
 export const DESAYUNO = {
   ID: extractSheetId(DESAYUNO_TSV),
-  RANGE: "Desayuno!A1:B100" as const,
+  READ_RANGE: "Desayuno!A1:C100" as const,
+  WRITE_RANGE: "Desayuno!B1:C100" as const,
 };

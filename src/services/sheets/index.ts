@@ -105,9 +105,9 @@ export async function getTextsFromSheet(
     throw new Error(data.error.message);
   }
 
-  return data.values.map((row, index) => ({
-    key: `${index}-${row[0]}`,
-    text: row[0] || "",
+  return data.values.map((row) => ({
+    key: row[0],
+    text: row[1],
   }));
 }
 
@@ -120,7 +120,7 @@ export async function getImagesFromSheet(
     throw new Error(data.error.message);
   }
 
-  return data.values.map((row) => row[0]);
+  return data.values.map((row) => row[1]);
 }
 
 export async function updateImagesInSheet(
@@ -145,16 +145,20 @@ export async function updateTextsInSheet(
 export async function getDesayunosFromSheet(
   accessToken: string,
 ): Promise<{ id: string; text: string; image: string }[]> {
-  const data = await getSheetData(accessToken, DESAYUNO.ID, DESAYUNO.RANGE);
+  const data = await getSheetData(
+    accessToken,
+    DESAYUNO.ID,
+    DESAYUNO.READ_RANGE,
+  );
 
   if ("error" in data) {
     throw new Error(data.error.message);
   }
 
   return data.values.map((row) => ({
-    id: `${row[0]}-${row[1]}`,
-    text: row[0],
-    image: row[1],
+    id: row[0],
+    text: row[1],
+    image: row[2],
   }));
 }
 
@@ -162,5 +166,10 @@ export async function updateDesayunosInSheet(
   accessToken: string,
   values: string[][],
 ) {
-  return updateSheetData(accessToken, DESAYUNO.ID, DESAYUNO.RANGE, values);
+  return updateSheetData(
+    accessToken,
+    DESAYUNO.ID,
+    DESAYUNO.WRITE_RANGE,
+    values,
+  );
 }
