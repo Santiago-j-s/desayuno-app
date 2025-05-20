@@ -104,52 +104,6 @@ async function updateSheetData(
   return response.json();
 }
 
-export async function getTextsFromSheet(
-  accessToken: string,
-): Promise<{ key: string; text: string }[]> {
-  const data = await getSheetData(accessToken, TEXTS.ID, TEXTS.RANGE);
-
-  if ("error" in data) {
-    throw new Error(data.error.message);
-  }
-
-  return data.values.map((row) => ({
-    key: row[0],
-    text: row[1],
-  }));
-}
-
-export async function getImagesFromSheet(
-  accessToken: string,
-): Promise<string[]> {
-  const data = await getSheetData(accessToken, IMAGES.ID, IMAGES.RANGE);
-
-  if ("error" in data) {
-    throw new Error(data.error.message);
-  }
-
-  return data.values.map((row) => row[1]);
-}
-
-export async function updateImagesInSheet(
-  accessToken: string,
-  values: string[],
-) {
-  return updateSheetData(accessToken, IMAGES.ID, IMAGES.RANGE, values);
-}
-
-export async function updateTextsInSheet(
-  accessToken: string,
-  values: { key: string; text: string }[],
-) {
-  return updateSheetData(
-    accessToken,
-    TEXTS.ID,
-    TEXTS.RANGE,
-    values.map(({ text }) => text),
-  );
-}
-
 export async function getDesayunosFromSheet(
   accessToken: string,
 ): Promise<{ id: string; text: string; image: string }[]> {
