@@ -3,34 +3,30 @@ import {
   DiscordInteraction,
   InteractionResponse,
 } from "@/services/discord/types";
-import { getTexts } from "./sheets/getTexts";
-import { getImages } from "./sheets/getimages";
+import { getDesayunos } from "./sheets/getDesayunos";
 
 export async function handleDesayunoCommand(
-  body: DiscordInteraction
+  body: DiscordInteraction,
 ): Promise<InteractionResponse> {
-  const texts = await getTexts();
-  const images = await getImages();
+  const desayunos = await getDesayunos();
 
-  const text = getRandomItem(texts);
-  const image = getRandomItem(images);
+  const desayuno = getRandomItem(desayunos);
 
   if (process.env.DEBUG_REQUESTS === "true") {
-    console.log("\x1b[36m%s\x1b[0m", "text", text);
-    console.log("\x1b[36m%s\x1b[0m", "image", image);
+    console.log("\x1b[36m%s\x1b[0m", "desayuno", desayuno);
   }
 
   return {
     type: 4,
     data: {
-      content: text.replace(
+      content: desayuno.text.replace(
         "{user}",
-        body.member ? `<@${body.member.user.id}>` : ""
+        body.member ? `<@${body.member.user.id}>` : "",
       ),
       embeds: [
         {
           image: {
-            url: image,
+            url: desayuno.image_url,
           },
         },
       ],

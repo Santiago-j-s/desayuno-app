@@ -2,7 +2,7 @@
  * Get a random item using a cryptographically secure random number generator.
  * Uses modulo bias correction to ensure uniform distribution.
  */
-export function getRandomItem(array: string[]) {
+export function getRandomItem<T>(array: T[]) {
   // Calculate the largest multiple of array.length that fits in a uint32
   const maxValue = Math.floor((0xffffffff + 1) / array.length) * array.length;
 
