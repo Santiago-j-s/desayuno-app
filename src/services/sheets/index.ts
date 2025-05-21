@@ -1,5 +1,5 @@
 import { unstable_cacheTag as cacheTag, revalidateTag } from "next/cache";
-import { DESAYUNO, IMAGES, SHEETS_API_URL, TEXTS } from "./constants";
+import { DESAYUNO, SHEETS_API_URL } from "./constants";
 
 const DEBUG_REQUESTS = process.env.DEBUG_REQUESTS === "true";
 

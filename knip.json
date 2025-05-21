@@ -11,6 +11,8 @@
     "eslint",
     "eslint-config-next",
     "tailwindcss",
-    "eslint-plugin-react-hooks"
+    "eslint-plugin-react-hooks",
+    "@typescript-eslint/eslint-plugin",
+    "@next/eslint-plugin-next"
   ]
 }
