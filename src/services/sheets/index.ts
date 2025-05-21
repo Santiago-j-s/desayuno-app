@@ -53,7 +53,7 @@ async function getSheetData(
       );
 
       return error;
-    } catch (error) {
+    } catch {
       throw new Error(response.statusText);
     }
   }
@@ -84,7 +84,13 @@ async function updateSheetData(
   };
 
   if (DEBUG_REQUESTS) {
-    console.log(`\x1b[32m[SHEETS] ${url} ${JSON.stringify(body)}\x1b[0m`);
+    console.log(
+      `\x1b[32m[SHEETS] \x1b[33m[PUT]\x1b[0m ${url}\n\x1b[33m${JSON.stringify(
+        body,
+        null,
+        2,
+      )}\x1b[0m`,
+    );
   }
 
   const response = await fetch(url, {
@@ -95,6 +101,10 @@ async function updateSheetData(
 
   if (!response.ok) {
     const error = await response.json();
+
+    console.error(
+      `\x1b[31m[SHEETS] error ${error.error.message} ${error.error.code}\x1b[0m`,
+    );
 
     throw new Error(error.error.message);
   }
@@ -117,21 +127,51 @@ export async function getDesayunosFromSheet(
     throw new Error(data.error.message);
   }
 
-  return data.values.map((row) => ({
-    id: row[0],
-    text: row[1],
-    image: row[2],
-  }));
+  return data.values
+    .filter(
+      (row) =>
+        (typeof row[1] === "string" && row[1] !== "") ||
+        (typeof row[2] === "string" && row[2] !== ""),
+    )
+    .map((row) => ({
+      id: row[0],
+      text: row[1],
+      image: row[2],
+    }));
 }
 
 export async function updateDesayunosInSheet(
   accessToken: string,
-  values: string[][],
+  values: [string, string, string][],
 ) {
+  return updateSheetData(accessToken, DESAYUNO.ID, DESAYUNO.READ_RANGE, values);
+}
+
+export async function deleteDesayunoFromSheet(accessToken: string, id: string) {
+  const data = await getSheetData(
+    accessToken,
+    DESAYUNO.ID,
+    DESAYUNO.READ_RANGE,
+  );
+
+  if ("error" in data) {
+    throw new Error(data.error.message);
+  }
+
+  const index = data.values.findIndex((row) => row[0] === id);
+
+  if (index === -1) {
+    throw new Error("Desayuno no encontrado");
+  }
+
+  const newValues = data.values.map((row, i) =>
+    i === index ? ["", ""] : [row[1], row[2]],
+  );
+
   return updateSheetData(
     accessToken,
     DESAYUNO.ID,
     DESAYUNO.WRITE_RANGE,
-    values,
+    newValues,
   );
 }

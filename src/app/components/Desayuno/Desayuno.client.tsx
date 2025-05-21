@@ -1,8 +1,13 @@
 "use client";
 
-import { Fragment, useActionState, useOptimistic, useState } from "react";
+import { useActionState, useOptimistic, useState } from "react";
 import { toast } from "sonner";
-import { addDesayuno, updateDesayunoText, Response } from "./actions";
+import {
+  addDesayuno,
+  updateDesayunoText,
+  Response,
+  deleteDesayuno,
+} from "./actions";
 import { unstable_ViewTransition as ViewTransition } from "react";
 import { unstable_Activity as Activity } from "react";
 
@@ -114,12 +119,17 @@ function EditDesayunoForm({
 
 function DesayunoItem({
   desayuno,
-  status = "idle",
   onEdit,
+  onDelete,
 }: {
-  desayuno: { text: string; image: string; id: string | null };
-  status?: "loading" | "idle";
+  desayuno: {
+    text: string;
+    image: string;
+    id: string | null;
+    status: "loading" | "idle" | "deleting";
+  };
   onEdit: (id: string) => void;
+  onDelete: (formData: FormData) => void;
 }) {
   const id = desayuno.id;
 
@@ -127,7 +137,9 @@ function DesayunoItem({
     <div
       className={[
         "rounded-lg border border-gray-700 bg-gray-800 p-3",
-        status === "loading" ? "animate-pulse" : "",
+        desayuno.status === "loading" || desayuno.status === "deleting"
+          ? "animate-pulse"
+          : "",
       ].join(" ")}
     >
       <div className="mb-2 min-h-[60px]">
@@ -138,25 +150,54 @@ function DesayunoItem({
             ))}
           </p>
           {id !== null && (
-            <button
-              onClick={() => onEdit(id)}
-              className="rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onEdit(id)}
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
               >
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                <path d="m15 5 4 4" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+              <form>
+                <input type="hidden" name="id" value={id} />
+                <button
+                  formAction={onDelete}
+                  disabled={desayuno.status === "deleting"}
+                  className="rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-gray-200 disabled:cursor-not-allowed disabled:bg-gray-900 disabled:text-gray-500"
+                >
+                  {desayuno.status === "deleting" ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-white" />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                  )}
+                </button>
+              </form>
+            </div>
           )}
         </div>
       </div>
@@ -205,7 +246,7 @@ function DesayunoForm({
 
 type DesayunoOptimisticState = {
   desayunos: {
-    status: "idle" | "loading";
+    status: "idle" | "loading" | "deleting";
     id: string | null;
     text: string;
     image: string;
@@ -226,6 +267,12 @@ type DesayunoOptimisticAction =
       payload: {
         id: string;
         text: string;
+      };
+    }
+  | {
+      type: "delete";
+      payload: {
+        id: string;
       };
     };
 
@@ -253,6 +300,14 @@ function useOptimisticDesayunoReducer(
             desayunos: state.desayunos.map((desayuno) =>
               desayuno.id === action.payload.id
                 ? { ...desayuno, text: action.payload.text, status: "loading" }
+                : desayuno,
+            ),
+          };
+        case "delete":
+          return {
+            desayunos: state.desayunos.map((desayuno) =>
+              desayuno.id === action.payload.id
+                ? { ...desayuno, status: "deleting" }
                 : desayuno,
             ),
           };
@@ -320,16 +375,34 @@ export function DesayunoClient({
 
       return response;
     },
-    {
-      status: "idle",
+    { status: "idle" },
+  );
+
+  const [, deleteAction] = useActionState(
+    async (_prevState: Response, formData: FormData) => {
+      const id = formData.get("id") as string;
+
+      dispatchOptimisticDesayuno({
+        type: "delete",
+        payload: { id },
+      });
+
+      const response = await deleteDesayuno(formData);
+
+      if (response.status === "error") {
+        console.error(response.message);
+        toast.error(response.message);
+      }
+
+      return response;
     },
+    { status: "idle" },
   );
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {optimisticDesayunos.desayunos.map((desayuno) => {
-          const isLoading = desayuno.status === "loading";
           const isEditingThisElement =
             editingId !== null && desayuno.id === editingId;
 
@@ -350,8 +423,8 @@ export function DesayunoClient({
               <Activity mode={isEditingThisElement ? "hidden" : "visible"}>
                 <DesayunoItem
                   desayuno={desayuno}
-                  status={isLoading ? "loading" : "idle"}
                   onEdit={setEditingId}
+                  onDelete={deleteAction}
                 />
               </Activity>
             </article>

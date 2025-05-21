@@ -2,6 +2,7 @@
 
 import { auth } from "@/services/auth";
 import {
+  deleteDesayunoFromSheet,
   getDesayunosFromSheet,
   updateDesayunosInSheet,
 } from "@/services/sheets";
@@ -57,10 +58,25 @@ export async function addDesayuno(formData: FormData): Promise<Response> {
 
     const desayunos = await getDesayunosFromSheet(session.access_token);
 
-    await updateDesayunosInSheet(session.access_token, [
-      ...desayunos.map(({ text, image }) => [text, image]),
-      [text, uploadResponse.data.link],
-    ]);
+    const newDesayuno = {
+      id: "",
+      text,
+      image: uploadResponse.data.link,
+    };
+
+    const newValues = [
+      ...desayunos.map(
+        ({ id, text, image }) =>
+          [id, text, image] satisfies [string, string, string],
+      ),
+      [newDesayuno.id, newDesayuno.text, newDesayuno.image] satisfies [
+        string,
+        string,
+        string,
+      ],
+    ];
+
+    await updateDesayunosInSheet(session.access_token, newValues);
 
     return { status: "success", message: "Desayuno añadido" };
   } catch (error) {
@@ -110,10 +126,10 @@ export async function updateDesayunoText(
       session.access_token,
       desayunos.map(({ id, text, image }) => {
         if (id === editingId) {
-          return [newText, image];
+          return [id, newText, image];
         }
 
-        return [text, image];
+        return [id, text, image];
       }),
     );
 
@@ -126,5 +142,32 @@ export async function updateDesayunoText(
     console.error(error);
 
     return { status: "error", message: "Error al actualizar desayuno" };
+  }
+}
+
+export async function deleteDesayuno(formData: FormData): Promise<Response> {
+  const session = await auth();
+  const deletingId = formData.get("id");
+
+  if (typeof deletingId !== "string") {
+    return { status: "error", message: "Id inválido" };
+  }
+
+  try {
+    if (!session) {
+      return { status: "error", message: "No session" };
+    }
+
+    await deleteDesayunoFromSheet(session.access_token, deletingId);
+
+    return { status: "success", message: "Desayuno eliminado" };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { status: "error", message: error.message };
+    }
+
+    console.error(error);
+
+    return { status: "error", message: "Error al eliminar desayuno" };
   }
 }
