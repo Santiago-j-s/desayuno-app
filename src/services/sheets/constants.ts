@@ -1,13 +1,5 @@
 export const SHEETS_API_URL = "https://sheets.googleapis.com";
 
-if (!process.env.TEXTS_TSV) {
-  throw new Error("TEXTS_TSV is not set");
-}
-
-if (!process.env.IMAGES_TSV) {
-  throw new Error("IMAGES_TSV is not set");
-}
-
 if (!process.env.DESAYUNOS_TSV) {
   throw new Error("DESAYUNOS_TSV is not set");
 }

@@ -54,7 +54,7 @@ Collect the following credentials that you'll need for your `.env.local` file:
 2. Publish each sheet to the web:
    - File > Share > Publish to web
    - Choose "Tab-separated values (.tsv)" as the format
-   - Copy the published URLs for `TEXTS_TSV` and `IMAGES_TSV`
+   - Copy the published URLs for `DESAYUNOS_TSV`
 
 ## Step 6: Configure the Project
 
@@ -71,9 +71,23 @@ Collect the following credentials that you'll need for your `.env.local` file:
    # Application Security
    SECRET=your_secret_key_here
 
+   # Auth
+   AUTH_SECRET=your_auth_secret_here
+
+   # Google auth
+   AUTH_GOOGLE_ID=your_google_auth_id_here
+   AUTH_GOOGLE_SECRET=your_google_auth_secret_here
+
    # Google Sheets Data Sources
-   PLAYERS_TSV=your_players_sheet_tsv_url_here
-   LOCATIONS_TSV=your_locations_sheet_tsv_url_here
+   DESAYUNOS_TSV=your_desayunos_sheet_tsv_url_here
+
+   # Imgur
+   IMGUR_CLIENT_ID=your_imgur_client_id_here
+   IMGUR_CLIENT_SECRET=your_imgur_client_secret_here
+
+   # Debug requests
+   DEBUG_REQUESTS=false
+   DEBUG_AUTH=false
    ```
 
    Replace the placeholder values with your actual credentials. For `SECRET`, you can generate a random string to use for authentication.

@@ -30,8 +30,12 @@ Incorrect environment variables can cause silent failures.
 - `DEFAULT_CHANNEL_ID`: The ID of your default channel for notifications
 - `BOT_TOKEN`: Your bot's token
 - `SECRET`: Your custom secret for the register endpoint
-- `TEXTS_TSV`: Valid and accessible Google Sheets TSV URL for texts data
-- `IMAGES_TSV`: Valid and accessible Google Sheets TSV URL for images data
+- `AUTH_SECRET`: Your custom secret for the auth endpoint
+- `AUTH_GOOGLE_ID`: Your Google auth ID
+- `AUTH_GOOGLE_SECRET`: Your Google auth secret
+- `IMGUR_CLIENT_ID`: Your Imgur client ID
+- `IMGUR_CLIENT_SECRET`: Your Imgur client secret
+- `DESAYUNOS_TSV`: Your Google Sheets TSV URL for desayunos data
 
 ### 3. Google Sheets Data Access
 
